@@ -45,6 +45,66 @@
       f(x,y,z) = xyz + xyz + xyz
       ```
 
+## 論理ゲート
+- ゲート(gate)はブール関数を実装するための物理デバイス
+- 論理ゲートの入力と出力は全て0と1からなる要素である
+- 例えば、3入力のブール関数で`And(a,b,c)`実装を考える
+  - ブール代数を用いると、`a・b・c = (a・b)・c`となる
+  - また、前置表記法の場合`And(a,b,c) = And(And(a,b),c)`と表すことができる
+- 論理設計(logic design)とは、ゲートのつなぎ方に関する技法であり、それによって複雑な機能をもった複合ゲートを構成することができる
+- 論理ゲートは2つの異なる視点から捉えることができる
+  - 内部 : ゲートの内部に関するアーキテクチャ、つまり実装
+  - 外部 : ゲートのインターフェイス
+- `Xor(a,b) = Or(And(a,Not(b)), And(Not(a), b))`
+
+## ハードウェア記述言語(HDL)
+- コンピュータ上でハードウェア記述言語を用いて、回路のアーキテクチャを設計し、最適化について考えることができる
+
+XorゲートのHDLによる実装
+
+  - HDLプログラム(`Xor.hdl`)
+
+      ```
+      /* Xor (exclusive or) gate:
+         If a<>b out=1 else out=0. */
+      CHIP Xor {
+        IN a, b;
+        OUT out;
+        PARTS:
+        NOT(in=a, out=nota);
+        NOT(in=b, out=notb);
+        And(a=a, b=notb, out=w1);
+        And(a=nota, b=b, out=w2);
+        Or(a=w1, b=w2, out=out);
+      }
+      ```
+
+  - テストスクリプト(`Xor.tst`)
+
+      ```
+      load Xor.hdl,
+      output-list a, b, out;
+      set a 0, set b 0,
+      eval, output;
+      set a 0, set b 1,
+      eval, output;
+      set a 1, set b 0,
+      eval, output;
+      est a 1, set b 1,
+      eval, output;
+      ```
+
+  - 出力ファイル(`Xor.out`)
+
+      ```
+      a  | b  | out
+      - - - - - - -
+      0  | 0  | 0
+      0  | 1  | 1
+      1  | 0  | 1
+      1  | 1  | 0
+      ```
+
 ## 実装
 実際にコードを書くのは次
 ```bash
